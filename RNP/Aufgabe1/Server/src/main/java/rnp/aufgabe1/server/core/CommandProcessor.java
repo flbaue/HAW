@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
 import static rnp.aufgabe1.server.core.Commands.*;
 
 /**
- * The CommandProcessor is running in it's own thread. It waits for an IncommingMessage object on the receiverQueue.
- * Once an IncommingMessage object is received it will be validated and transformed into an ordinary Message object,
+ * The CommandProcessor is running in it's own thread. It waits for an IncomingMessage object on the receiverQueue.
+ * Once an IncomingMessage object is received it will be validated and transformed into an ordinary Message object,
  * which then is processed. The processing result will be put into a new Message object and then added to the
  * broadcasterQueue.
  *
@@ -47,8 +47,8 @@ public class CommandProcessor implements Runnable {
 
 
     /**
-     * The Thread runs until it is interrupted. It always waits until it can take the first IncomminMessage from teh
-     * receiverQueue. The IncomingMessage is then validated and transfomed to an Message object and processed.
+     * The Thread runs until it is interrupted. It always waits until it can take the first IncomingMessage from teh
+     * receiverQueue. The IncomingMessage is then validated and transformed to an Message object and processed.
      * The result will be added as Message object to the broadcasterQueue.
      * The thread interrupts it's self when shutdown is true and no registered clients are left.
      */
