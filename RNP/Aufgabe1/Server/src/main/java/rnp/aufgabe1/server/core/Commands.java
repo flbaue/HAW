@@ -11,5 +11,5 @@ package rnp.aufgabe1.server.core;
  */
 public enum Commands {
 
-    LOWERCASE, UPPERCASE, REVERSE, BYE, SHUTDOWN, ERROR, OK, OK_BYE;
+    HELLO, LOWERCASE, UPPERCASE, REVERSE, BYE, SHUTDOWN, ERROR, OK, OK_BYE, IGNORE;
 }

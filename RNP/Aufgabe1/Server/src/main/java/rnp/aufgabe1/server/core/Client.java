@@ -10,21 +10,29 @@ package rnp.aufgabe1.server.core;
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de
  */
 public class Client {
-    public final String host;
-    public final int port;
+    private final String host;
+    private final int portOut;
+    private int portIn;
 
-    public Client(String host, int port) {
+    public Client(final String host, final int portOut) {
         this.host = host;
-        this.port = port;
+        this.portOut = portOut;
     }
 
-    public int getPort() {
-        return port;
+    public void setPortIn(int portIn) {
+        this.portIn = portIn;
+    }
+
+    public int getPortIn() {
+        return portIn;
+    }
+
+    public int getPortOut() {
+        return portOut;
     }
 
     public String getHost() {
         return host;
-
     }
 
     @Override
@@ -34,7 +42,7 @@ public class Client {
 
         Client client = (Client) o;
 
-        if (port != client.port) return false;
+        if (portOut != client.portOut) return false;
         if (!host.equals(client.host)) return false;
 
         return true;
@@ -43,7 +51,7 @@ public class Client {
     @Override
     public int hashCode() {
         int result = host.hashCode();
-        result = 31 * result + port;
+        result = 31 * result + portOut;
         return result;
     }
 }

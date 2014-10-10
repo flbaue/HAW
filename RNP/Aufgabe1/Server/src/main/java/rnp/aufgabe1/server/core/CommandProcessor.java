@@ -14,6 +14,11 @@ import java.util.regex.Pattern;
 import static rnp.aufgabe1.server.core.Commands.*;
 
 /**
+ * The CommandProcessor is running in it's own thread. It waits for an IncommingMessage object on the receiverQueue.
+ * Once an IncommingMessage object is received it will be validated and transformed into an ordinary Message object,
+ * which then is processed. The processing result will be put into a new Message object and then added to the
+ * broadcasterQueue.
+ *
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de
  */
 public class CommandProcessor implements Runnable {
@@ -21,6 +26,7 @@ public class CommandProcessor implements Runnable {
     public static final String UNKNOWN_COMMAND = "unknown command: ";
     public static final String UNAUTHORIZED_REQUEST = "unauthorized request";
 
+    // Pattern to validate the IncommingMessage content
     private static final Pattern messagePattern = Pattern.compile("[A-Z]+(\u0020.*)?\n");
 
     private final BlockingDeque<IncomingMessage> receiverQueue;
@@ -39,14 +45,31 @@ public class CommandProcessor implements Runnable {
         this.server = server;
     }
 
+
+    /**
+     * The Thread runs until it is interrupted. It always waits until it can take the first IncomminMessage from teh
+     * receiverQueue. The IncomingMessage is then validated and transfomed to an Message object and processed.
+     * The result will be added as Message object to the broadcasterQueue.
+     * The thread interrupts it's self when shutdown is true and no registered clients are left.
+     */
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
+                // wait for incoming message
                 IncomingMessage incomingMessage = receiverQueue.takeFirst();
                 Message message = parseIncomingMessage(incomingMessage);
 
+                // only clients that we know the port of can be considered
+                if(message.getCommand() != HELLO && !clients.contains(message.getClient())) {
+                    message = unregisteredClient(message);
+                }
+
+                // process message commands
                 switch (message.getCommand()) {
+                    case HELLO:
+                        message = cmdHello(message);
+                        break;
                     case LOWERCASE:
                         message = cmdLowercase(message);
                         break;
@@ -66,13 +89,19 @@ public class CommandProcessor implements Runnable {
                         message = cmdError(message);
                         break;
                 }
-                broadcasterQueue.add(message);
 
-                if(shutdown && clients.isEmpty()){
-                    Thread.currentThread().interrupt();
+                // IGNORE messages mean that we don't know the client's port, probably because the client did not
+                // register right.
+                if (message.getCommand() != IGNORE) {
+                    broadcasterQueue.add(message);
                 }
 
+                // if the server is shutting down and no clients are left, we interrupt this thread to stop it.
+                if (shutdown && clients.isEmpty()) {
+                    Thread.currentThread().interrupt();
+                }
             } catch (InterruptedException e) {
+                // interrupts have to be repeated if caught
                 Thread.currentThread().interrupt();
             }
         }
@@ -80,6 +109,26 @@ public class CommandProcessor implements Runnable {
         //TODO evtl andere prozesse killen? speziel receiver
     }
 
+    /**
+     * If a client sends a valid Message but is not registered first, the request must be ignored because the clients
+     * port to receive messages is unknown.
+     *
+     * @param message the client's message.
+     * @return an IGNORE Message.
+     */
+    private Message unregisteredClient(Message message) {
+        return new Message(IGNORE, message.getText(), message.getClient());
+    }
+
+
+    /**
+     * The IncomingMessage is validated with a regular expression and then parsed. The content String is split and a
+     * Commands object, String text object and the clients information are stored into a new Message object.
+     * In the case of an error (e.g. validation error, parsing error, etc.) an "ERROR" message will be generated.
+     *
+     * @param incomingMessage of the client. Containing the content string and the client's information.
+     * @return A Message object for further processing.
+     */
     Message parseIncomingMessage(IncomingMessage incomingMessage) {
         String content = incomingMessage.getContent();
         Matcher matcher = messagePattern.matcher(content);
@@ -103,11 +152,49 @@ public class CommandProcessor implements Runnable {
         }
     }
 
-    Message cmdError(Message message) {
-        //TODO Fälle beachten, evtl. splitten für bessere Fehlermeldung
-        return new Message(ERROR, UNKNOWN_COMMAND + message.getCommand(), message.getClient());
+    /**
+     * The "Hello" message of the client is here processed. The Client has to sent this message first,
+     * to register with this server. The message has to have the format "HELLO [port]" whereby [port] is the port
+     * number on which the client can receive messages from the server. The Client is then put into the list of known
+     * clients.
+     *
+     * @param message of the client that contains the client's port to receive messages.
+     * @return a new Message object that response with "HELLO" to the client. Or an IGNORE message,
+     * if the clients port is not valid. It can not be an ERROR response, because there is no port to send it to ;-).
+     */
+    private Message cmdHello(Message message) {
+        try {
+            int port = Integer.parseInt(message.getText());
+            message.getClient().setPortIn(port);
+        } catch (NumberFormatException e) {
+            return new Message(IGNORE, message.getText(), message.getClient());
+        }
+        clients.add(message.getClient());
+        return new Message(HELLO, "", message.getClient());
     }
 
+    /**
+     * Creates an ERROR response Message. If the Message already is an ERROR Message, it is not changed.
+     *
+     * @param message the parsed incoming Message.
+     * @return the response Message for the client.
+     */
+    Message cmdError(Message message) {
+        if(message.getCommand() == ERROR) {
+            return message; // e.g. parsing errors
+        } else {
+            return new Message(ERROR, UNKNOWN_COMMAND + message.getCommand(), message.getClient());
+        }
+    }
+
+    /**
+     * Starts the shutdown process of the server, if the Message contains the right password. The client's session is
+     * then also removed and a OK_BYE response is generated.
+     * If the password is wrong, an ERROR Message is generated.
+     *
+     * @param message the parsed incoming Message.
+     * @return the response Message for the client.
+     */
     Message cmdShutdown(Message message) {
         if (message.getText().equals(secretToken)) {
             clients.remove(message.getClient());
@@ -118,11 +205,23 @@ public class CommandProcessor implements Runnable {
         }
     }
 
+    /**
+     * Removes the client's session and generates a BYE Message.
+     *
+     * @param message the parsed incoming Message.
+     * @return the response Message for the client.
+     */
     Message cmdBye(Message message) {
         clients.remove(message.getClient());
         return new Message(BYE, "", message.getClient());
     }
 
+    /**
+     * Text manipulation
+     *
+     * @param message the parsed incoming Message.
+     * @return the response Message for the client.
+     */
     Message cmdReverse(Message message) {
         String text = message.getText();
         Client client = message.getClient();
@@ -135,6 +234,12 @@ public class CommandProcessor implements Runnable {
         return new Message(OK, stringBuilder.toString(), client);
     }
 
+    /**
+     * Text manipulation
+     *
+     * @param message the parsed incoming Message.
+     * @return the response Message for the client.
+     */
     Message cmdLowercase(Message message) {
         String text = message.getText().trim();
         Client client = message.getClient();
@@ -144,6 +249,12 @@ public class CommandProcessor implements Runnable {
         return new Message(OK, text, client);
     }
 
+    /**
+     * Text manipulation
+     *
+     * @param message the parsed incoming Message.
+     * @return the response Message for the client.
+     */
     Message cmdUppercase(Message message) {
         String text = message.getText().trim();
         Client client = message.getClient();
@@ -153,6 +264,9 @@ public class CommandProcessor implements Runnable {
         return new Message(OK, text, client);
     }
 
+    /**
+     * Sets the CommandProcessor in the shutdown mode.
+     */
     public void shutdown() {
         shutdown = true;
     }

@@ -50,7 +50,7 @@ public class Broadcaster implements Runnable {
         Client client = message.getClient();
         Socket clientSocket = null;
         try {
-            clientSocket = new Socket(client.getHost(), client.getPort());
+            clientSocket = new Socket(client.getHost(), client.getPortIn());
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
             writer.write(message.toString());
             writer.flush();
