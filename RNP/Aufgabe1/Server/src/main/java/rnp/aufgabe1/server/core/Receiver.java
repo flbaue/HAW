@@ -43,10 +43,7 @@ public class Receiver implements Runnable {
                 Client client = new Client(clientSocket.getInetAddress().getHostAddress(), clientSocket.getPort());
                 boolean clientIsKnown = clients.contains(client);
 
-                if(!shutdown || shutdown && clientIsKnown) {
-                    if(!clientIsKnown) {
-                        clients.add(client);
-                    }
+                if(!shutdown || (shutdown && clientIsKnown)) {
 
                     Writer writer = new StringWriter();
                     char[] buffer = new char[255];
