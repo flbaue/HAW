@@ -9,7 +9,7 @@ package rnp.aufgabe1.server.core;
 /**
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de
  */
-public enum Commands {
+public enum Command {
 
     HELLO, LOWERCASE, UPPERCASE, REVERSE, BYE, SHUTDOWN, ERROR, OK, OK_BYE, IGNORE;
 }

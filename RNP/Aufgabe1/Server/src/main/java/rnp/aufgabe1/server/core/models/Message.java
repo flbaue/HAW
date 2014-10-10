@@ -4,7 +4,9 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core;
+package rnp.aufgabe1.server.core.models;
+
+import rnp.aufgabe1.server.core.Command;
 
 /**
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de
@@ -12,16 +14,16 @@ package rnp.aufgabe1.server.core;
 public class Message {
 
     private final String text;
-    private final Commands command;
+    private final Command command;
     private final Client client;
 
-    public Message(final Commands command, final String text, final Client client) {
+    public Message(final Command command, final String text, final Client client) {
         this.client = client;
         this.command = command;
         this.text = text;
     }
 
-    public Commands getCommand() {
+    public Command getCommand() {
         return this.command;
     }
 

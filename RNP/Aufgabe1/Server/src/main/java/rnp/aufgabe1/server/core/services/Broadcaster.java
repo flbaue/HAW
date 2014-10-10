@@ -4,9 +4,11 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core;
+package rnp.aufgabe1.server.core.services;
 
-import rnp.aufgabe1.server.ServerUtils;
+import rnp.aufgabe1.server.core.ServerUtils;
+import rnp.aufgabe1.server.core.models.Client;
+import rnp.aufgabe1.server.core.models.Message;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

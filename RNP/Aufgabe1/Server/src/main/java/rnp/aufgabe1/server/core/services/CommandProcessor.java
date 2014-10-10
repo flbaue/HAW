@@ -4,14 +4,20 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core;
+package rnp.aufgabe1.server.core.services;
+
+import rnp.aufgabe1.server.core.*;
+import rnp.aufgabe1.server.core.models.Client;
+import rnp.aufgabe1.server.core.Command;
+import rnp.aufgabe1.server.core.models.IncomingMessage;
+import rnp.aufgabe1.server.core.models.Message;
 
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static rnp.aufgabe1.server.core.Commands.*;
+import static rnp.aufgabe1.server.core.Command.*;
 
 /**
  * The CommandProcessor is running in it's own thread. It waits for an IncomingMessage object on the receiverQueue.
@@ -26,7 +32,7 @@ public class CommandProcessor implements Runnable {
     public static final String UNKNOWN_COMMAND = "unknown command: ";
     public static final String UNAUTHORIZED_REQUEST = "unauthorized request";
 
-    // Pattern to validate the IncommingMessage content
+    // Pattern to validate the IncomingMessage content
     private static final Pattern messagePattern = Pattern.compile("[A-Z]+(\u0020.*)?\n");
 
     private final BlockingDeque<IncomingMessage> receiverQueue;
@@ -57,43 +63,45 @@ public class CommandProcessor implements Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 // wait for incoming message
-                IncomingMessage incomingMessage = receiverQueue.takeFirst();
-                Message message = parseIncomingMessage(incomingMessage);
+                final IncomingMessage incomingMessage = receiverQueue.takeFirst();
+                final Message messageIn = parseIncomingMessage(incomingMessage);
+                final Message messageOut;
 
                 // only clients that we know the port of can be considered
-                if(message.getCommand() != HELLO && !clients.contains(message.getClient())) {
-                    message = unregisteredClient(message);
-                }
+                if(messageIn.getCommand() != HELLO && !clients.contains(messageIn.getClient())) {
+                    messageOut = unregisteredClient(messageIn);
+                } else {
 
-                // process message commands
-                switch (message.getCommand()) {
-                    case HELLO:
-                        message = cmdHello(message);
-                        break;
-                    case LOWERCASE:
-                        message = cmdLowercase(message);
-                        break;
-                    case UPPERCASE:
-                        message = cmdUppercase(message);
-                        break;
-                    case REVERSE:
-                        message = cmdReverse(message);
-                        break;
-                    case BYE:
-                        message = cmdBye(message);
-                        break;
-                    case SHUTDOWN:
-                        message = cmdShutdown(message);
-                        break;
-                    default:
-                        message = cmdError(message);
-                        break;
+                    // process message commands
+                    switch (messageIn.getCommand()) {
+                        case HELLO:
+                            messageOut = cmdHello(messageIn);
+                            break;
+                        case LOWERCASE:
+                            messageOut = cmdLowercase(messageIn);
+                            break;
+                        case UPPERCASE:
+                            messageOut = cmdUppercase(messageIn);
+                            break;
+                        case REVERSE:
+                            messageOut = cmdReverse(messageIn);
+                            break;
+                        case BYE:
+                            messageOut = cmdBye(messageIn);
+                            break;
+                        case SHUTDOWN:
+                            messageOut = cmdShutdown(messageIn);
+                            break;
+                        default:
+                            messageOut = cmdError(messageIn);
+                            break;
+                    }
                 }
 
                 // IGNORE messages mean that we don't know the client's port, probably because the client did not
                 // register right.
-                if (message.getCommand() != IGNORE) {
-                    broadcasterQueue.add(message);
+                if (messageIn.getCommand() != IGNORE) {
+                    broadcasterQueue.add(messageOut);
                 }
 
                 // if the server is shutting down and no clients are left, we interrupt this thread to stop it.
@@ -137,7 +145,7 @@ public class CommandProcessor implements Runnable {
             int space = content.indexOf("\u0020");
             String cmdName = content.substring(0, space);
             String text = content.substring(space).trim();
-            Commands command;
+            Command command;
             try {
                 command = valueOf(cmdName);
             } catch (IllegalArgumentException e) {
