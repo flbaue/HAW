@@ -18,10 +18,15 @@ public class Client {
 
     private final String serverAddress;
     private final int serverPort;
+    private final Receiver receiver;
 
-    public Client(final String serverAddress, final int serverPort) {
+    public Client(final String serverAddress, final int serverPort, final int port) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
+        receiver = new Receiver(port);
+        Thread receiverThread = new Thread(receiver);
+        receiverThread.setName("receiverThread");
+        receiverThread.start();
     }
 
     public void sendMessage(String message) {
