@@ -34,4 +34,12 @@ public class ServerUtils {
             }
         }
     }
+
+    public static void sleep(final int mills) {
+        try {
+            Thread.sleep(mills);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }

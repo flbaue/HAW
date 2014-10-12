@@ -21,25 +21,32 @@ import java.util.concurrent.LinkedBlockingDeque;
 /**
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de
  */
-public class Server {
+public class Server implements Runnable {
 
     private final BlockingDeque<IncomingMessage> receiverQueue;
     private final BlockingDeque<Message> broadcasterQueue;
     private final Set<Client> clients;
+    private final int port;
+    private final String password;
     private Receiver receiver;
     private Broadcaster broadcaster;
     private CommandProcessor commandProcessor;
     private Thread commandProcessorThread;
     private Thread broadcasterThread;
     private Thread receiverThread;
+    private boolean shutdown;
 
-    public Server() {
-        receiverQueue = new LinkedBlockingDeque();
-        broadcasterQueue = new LinkedBlockingDeque();
+    public Server(int port, String password) {
+        receiverQueue = new LinkedBlockingDeque<>();
+        broadcasterQueue = new LinkedBlockingDeque<>();
         clients = new HashSet<>();
+        shutdown = false;
+        this.password = password;
+        this.port = port;
     }
 
-    public void start(int port, String password) {
+    @Override
+    public void run() {
         receiver = new Receiver(receiverQueue, port, clients);
         receiverThread = new Thread(receiver);
         receiverThread.setName("receiverThread");
@@ -50,45 +57,53 @@ public class Server {
         commandProcessorThread.setName("commandProcessorThread");
         commandProcessorThread.start();
 
-        broadcaster = new Broadcaster(broadcasterQueue, clients);
+        broadcaster = new Broadcaster(broadcasterQueue, clients, this);
         broadcasterThread = new Thread(broadcaster);
         broadcasterThread.setName("broadcasterThread");
         broadcasterThread.start();
+
+        waitForShutdown();
+    }
+
+    private void waitForShutdown() {
+        while (isAlive()) {
+            if (shutdown) {
+                waitForTimeout(60);
+                shutdown();
+            } else {
+                ServerUtils.sleep(2000);
+            }
+        }
+    }
+
+    private void waitForTimeout(int timeout) {
+        while (timeout > 0 && isAlive()) {
+            timeout--;
+            ServerUtils.sleep(1000);
+        }
+    }
+
+    public void prepareShutdown() {
+        receiver.shutdown();
+        commandProcessor.shutdown();
+        broadcaster.shutdown();
+        shutdown = true;
     }
 
     public void shutdown() {
-        int sleep = 1000;
-        int timeout = sleep * 60;
-
-        while (isAlive()) {
-            if (timeout <= 0) {
-                System.out.println("server shutdown timeout: remaining connections will be terminated");
-                clients.clear();
-            }
-
-            if (clients.size() > 0) {
-                receiver.shutdown();
-                commandProcessor.shutdown();
-                broadcaster.shutdown();
-            } else {
-                receiver.closeSocket();
-                commandProcessorThread.interrupt();
-                broadcasterThread.interrupt();
-            }
-
-            System.out.println(status());
-
-            try {
-                Thread.sleep(sleep);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            timeout -= sleep;
+        if (isReceiverThreadAlive()) {
+            receiver.closeSocket();
+        }
+        if (isProcessorThreadAlive()) {
+            commandProcessorThread.interrupt();
+        }
+        if (isBroadcasterThreadAlive()) {
+            broadcasterThread.interrupt();
         }
     }
 
     public boolean isAlive() {
-        return receiverThread.isAlive() || commandProcessorThread.isAlive() || broadcasterThread.isAlive();
+        return isReceiverThreadAlive() || isProcessorThreadAlive() || isBroadcasterThreadAlive();
     }
 
     public String status() {
@@ -103,5 +118,18 @@ public class Server {
                 "broadcasterQueue:" + broadcasterQueue.size() +
                 "----------\n";
     }
+
+    public boolean isProcessorThreadAlive() {
+        return commandProcessorThread.isAlive();
+    }
+
+    public boolean isReceiverThreadAlive() {
+        return receiverThread.isAlive();
+    }
+
+    public boolean isBroadcasterThreadAlive() {
+        return broadcasterThread.isAlive();
+    }
+
 
 }

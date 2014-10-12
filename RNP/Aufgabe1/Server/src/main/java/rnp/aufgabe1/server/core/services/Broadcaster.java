@@ -6,9 +6,9 @@
 
 package rnp.aufgabe1.server.core.services;
 
+import rnp.aufgabe1.server.core.Server;
 import rnp.aufgabe1.server.core.ServerUtils;
-import rnp.aufgabe1.server.core.models.Client;
-import rnp.aufgabe1.server.core.models.Message;
+import rnp.aufgabe1.server.core.models.*;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -23,10 +23,13 @@ import java.util.concurrent.BlockingDeque;
 public class Broadcaster implements Runnable {
 
     private final BlockingDeque<Message> messageQueue;
-    private final Set<Client> clients;
-    private boolean shutdown = false;
 
-    public Broadcaster(BlockingDeque<Message> messageQueue, final Set<Client> clients) {
+    private final Set<Client> clients;
+    private final Server server;
+    private boolean shutdown;
+
+    public Broadcaster(final BlockingDeque<Message> messageQueue, final Set<Client> clients, final Server server) {
+        this.server = server;
         this.messageQueue = messageQueue;
         this.clients = clients;
     }
@@ -38,7 +41,7 @@ public class Broadcaster implements Runnable {
                 Message message = messageQueue.takeFirst();
                 sendToReceiver(message);
 
-                if (shutdown && clients.isEmpty()) {
+                if (shutdown && messageQueue.isEmpty() && !server.isBroadcasterThreadAlive()) {
                     Thread.currentThread().interrupt();
                 }
 

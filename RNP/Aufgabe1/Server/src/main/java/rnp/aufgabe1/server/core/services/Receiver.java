@@ -18,9 +18,9 @@ import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 
 /**
- * Receives messages from clients, encapsulates them with the client credentials to an IncomingMessage object,
- * and adds them to the messageQueue.
- *
+ * Receives messages from clients, encapsulates them with the client credentials to an IncomingMessage object, and adds
+ * them to the messageQueue.
+ * <p>
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de
  */
 public class Receiver implements Runnable {
@@ -52,7 +52,7 @@ public class Receiver implements Runnable {
                 boolean clientIsKnown = clients.contains(client);
 
                 // if server is shutting down and the client is unregistered, it is ignored
-                if(!shutdown || (shutdown && clientIsKnown)) {
+                if (!shutdown || (shutdown && clientIsKnown)) {
 
                     // read exactly 255 byte from the client.
                     Writer writer = new StringWriter();
@@ -71,11 +71,11 @@ public class Receiver implements Runnable {
                     reader.close();
                 }
 
-                // if server is shutting down and no clients are left, this thread will be interrupted to stop.
-                if(shutdown && clients.isEmpty()) {
+                // if server is shutting down. no clients are left and no unprocessed messages are left,
+                // this thread will be interrupted to stop.
+                if (shutdown && clients.isEmpty() && messageQueue.size() == 0) {
                     Thread.currentThread().interrupt();
                 }
-
             } catch (SocketException e) {
                 // happens when we close the server socket by force. E.g. when the shutdown timeout is hit.
                 Thread.currentThread().interrupt();

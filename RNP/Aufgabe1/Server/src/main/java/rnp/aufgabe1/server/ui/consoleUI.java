@@ -30,8 +30,10 @@ public class ConsoleUI {
         System.out.println("Remote Shutdown Password:" + secretToken);
         System.out.println("press 'q' to shutdown locally");
 
-        Server server = new Server();
-        server.start(port,secretToken);
+        Server server = new Server(port,secretToken);
+        Thread serverThread = new Thread(server);
+        serverThread.setName("serverThread");
+        serverThread.run();
 
         System.out.println("Server is running");
 
@@ -41,7 +43,7 @@ public class ConsoleUI {
             //nothing
         }
         System.out.println("Server is shutting down");
-        server.shutdown();
+        server.shutdownServer();
         System.out.println("Goodbye");
 
     }
