@@ -6,8 +6,6 @@
 
 package rnp.aufgabe1.server.newserver;
 
-import rnp.aufgabe1.server.oldserver.core.ServerUtils;
-
 import java.io.*;
 import java.net.Socket;
 
@@ -38,9 +36,6 @@ public class ConnectionWorker implements Runnable {
 
             while (!isStopped) {
                 String input = readIncomingText(in, 255);
-
-                //ServerUtils.sleep(30000);
-
                 String output = processInput(input);
 
                 out.write(output);
@@ -52,6 +47,8 @@ public class ConnectionWorker implements Runnable {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            closeSocket();
         }
 
         server.removeConnection(this);
@@ -78,7 +75,11 @@ public class ConnectionWorker implements Runnable {
     }
 
     public void closeSocket() {
-        ServerUtils.closeSocketSafely(clientSocket);
+        try {
+            clientSocket.close();
+        } catch (IOException e) {
+            //throw new RuntimeException("Error while closing the socket", e);
+        }
     }
 
     @Override

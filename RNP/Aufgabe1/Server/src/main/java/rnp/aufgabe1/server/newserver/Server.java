@@ -70,11 +70,20 @@ public class Server implements Runnable {
         int timeout = 60000;
         int sleep = 1000;
         while (!connections.isEmpty() && timeout <= 0) {
+            System.out.println((timeout / 1000) + " seconds till forced shutdown");
             ServerUtils.sleep(sleep);
             timeout -= sleep;
         }
         if (!connections.isEmpty()) {
-            ServerUtils.closeServerSocketSafely(serverSocket);
+            closeServerSocket();
+        }
+    }
+
+    private void closeServerSocket() {
+        try {
+            serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot close port 8080", e);
         }
     }
 
