@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core.models;
+package rnp.aufgabe1.server.oldserver.core.models;
 
 /**
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de

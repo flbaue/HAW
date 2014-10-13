@@ -4,20 +4,20 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core.services;
+package rnp.aufgabe1.server.oldserver.core.services;
 
-import rnp.aufgabe1.server.core.Command;
-import rnp.aufgabe1.server.core.Server;
-import rnp.aufgabe1.server.core.models.Client;
-import rnp.aufgabe1.server.core.models.IncomingMessage;
-import rnp.aufgabe1.server.core.models.Message;
+import rnp.aufgabe1.server.oldserver.core.Command;
+import rnp.aufgabe1.server.oldserver.core.Server;
+import rnp.aufgabe1.server.oldserver.core.models.Client;
+import rnp.aufgabe1.server.oldserver.core.models.IncomingMessage;
+import rnp.aufgabe1.server.oldserver.core.models.Message;
 
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static rnp.aufgabe1.server.core.Command.*;
+import static rnp.aufgabe1.server.oldserver.core.Command.*;
 
 /**
  * The CommandProcessor is running in it's own thread. It waits for an IncomingMessage object on the receiverQueue. Once

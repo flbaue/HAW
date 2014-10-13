@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core;
+package rnp.aufgabe1.server.oldserver.core;
 
 import java.io.IOException;
 import java.net.ServerSocket;

@@ -4,9 +4,9 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core.models;
+package rnp.aufgabe1.server.oldserver.core.models;
 
-import rnp.aufgabe1.server.core.Command;
+import rnp.aufgabe1.server.oldserver.core.Command;
 
 /**
  * Created by Florian Bauer on 06.10.14. flbaue@posteo.de

@@ -4,14 +4,14 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core;
+package rnp.aufgabe1.server.oldserver.core;
 
-import rnp.aufgabe1.server.core.models.Client;
-import rnp.aufgabe1.server.core.models.IncomingMessage;
-import rnp.aufgabe1.server.core.models.Message;
-import rnp.aufgabe1.server.core.services.Broadcaster;
-import rnp.aufgabe1.server.core.services.CommandProcessor;
-import rnp.aufgabe1.server.core.services.Receiver;
+import rnp.aufgabe1.server.oldserver.core.models.Client;
+import rnp.aufgabe1.server.oldserver.core.models.IncomingMessage;
+import rnp.aufgabe1.server.oldserver.core.models.Message;
+import rnp.aufgabe1.server.oldserver.core.services.Broadcaster;
+import rnp.aufgabe1.server.oldserver.core.services.CommandProcessor;
+import rnp.aufgabe1.server.oldserver.core.services.Receiver;
 
 import java.util.HashSet;
 import java.util.Set;

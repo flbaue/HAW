@@ -4,16 +4,16 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core.services;
+package rnp.aufgabe1.server.oldserver.core.services;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import rnp.aufgabe1.server.core.*;
-import rnp.aufgabe1.server.core.models.Client;
-import rnp.aufgabe1.server.core.Command;
-import rnp.aufgabe1.server.core.models.IncomingMessage;
-import rnp.aufgabe1.server.core.models.Message;
+import rnp.aufgabe1.server.oldserver.core.*;
+import rnp.aufgabe1.server.oldserver.core.models.Client;
+import rnp.aufgabe1.server.oldserver.core.Command;
+import rnp.aufgabe1.server.oldserver.core.models.IncomingMessage;
+import rnp.aufgabe1.server.oldserver.core.models.Message;
 
 import java.util.HashSet;
 import java.util.Set;

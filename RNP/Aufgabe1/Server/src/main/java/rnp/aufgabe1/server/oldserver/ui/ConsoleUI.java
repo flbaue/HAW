@@ -4,9 +4,9 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.ui;
+package rnp.aufgabe1.server.oldserver.ui;
 
-import rnp.aufgabe1.server.core.Server;
+import rnp.aufgabe1.server.oldserver.core.Server;
 
 import java.util.Scanner;
 

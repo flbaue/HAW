@@ -4,11 +4,11 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.core.services;
+package rnp.aufgabe1.server.oldserver.core.services;
 
-import rnp.aufgabe1.server.core.ServerUtils;
-import rnp.aufgabe1.server.core.models.Client;
-import rnp.aufgabe1.server.core.models.IncomingMessage;
+import rnp.aufgabe1.server.oldserver.core.ServerUtils;
+import rnp.aufgabe1.server.oldserver.core.models.Client;
+import rnp.aufgabe1.server.oldserver.core.models.IncomingMessage;
 
 import java.io.*;
 import java.net.ServerSocket;

@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.client;
+package rnp.aufgabe1.client.oldclient;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
