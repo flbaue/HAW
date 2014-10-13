@@ -100,7 +100,7 @@ public class CommandProcessor implements Runnable {
 
                 // IGNORE messages mean that we don't know the client's port, probably because the client did not
                 // register right.
-                if (messageIn.getCommand() != IGNORE) {
+                if (messageOut.getCommand() != IGNORE) {
                     broadcasterQueue.add(messageOut);
                 }
 
@@ -114,7 +114,7 @@ public class CommandProcessor implements Runnable {
             }
         }
 
-        //TODO evtl andere prozesse killen? speziel receiver
+        System.out.println("Server: CommandProcessorThread is off");
     }
 
     /**

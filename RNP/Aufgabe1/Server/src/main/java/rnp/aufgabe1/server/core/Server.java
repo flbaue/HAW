@@ -74,6 +74,8 @@ public class Server implements Runnable {
                 ServerUtils.sleep(2000);
             }
         }
+        System.out.println("Server: Server is off");
+        System.out.println("Server: Goodbye.");
     }
 
     private void waitForTimeout(int timeout) {
@@ -84,6 +86,7 @@ public class Server implements Runnable {
     }
 
     public void prepareShutdown() {
+        System.out.println("Server: preparing shutdown");
         receiver.shutdown();
         commandProcessor.shutdown();
         broadcaster.shutdown();

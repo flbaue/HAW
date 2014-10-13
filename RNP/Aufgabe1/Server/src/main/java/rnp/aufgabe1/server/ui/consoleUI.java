@@ -33,19 +33,17 @@ public class ConsoleUI {
         Server server = new Server(port,secretToken);
         Thread serverThread = new Thread(server);
         serverThread.setName("serverThread");
-        serverThread.run();
+        serverThread.start();
 
         System.out.println("Server is running");
 
         Scanner scanner = new Scanner(System.in).useDelimiter("\n");
         String input;
-        while (!(scanner.next()).equals("q")) {
+        while (!(input = scanner.next()).equals("q")) {
             //nothing
         }
         System.out.println("Server is shutting down");
-        server.shutdownServer();
-        System.out.println("Goodbye");
-
+        server.prepareShutdown();
     }
 
     private void parseArgs(final String[] args) {

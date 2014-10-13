@@ -27,8 +27,7 @@ public class Receiver implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
 
-            try {
-                ServerSocket serverSocket = new ServerSocket(serverPort);
+            try(ServerSocket serverSocket = new ServerSocket(serverPort)) {
                 Socket socket = serverSocket.accept();
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -37,11 +36,11 @@ public class Receiver implements Runnable {
                 if (i < 0 || i >= 255) {
                     //((error))
                 }
+                reader.close();
                 StringWriter stringWriter = new StringWriter();
                 stringWriter.write(buffer);
                 String response = stringWriter.toString();
                 System.out.println("Server: " + response);
-
             } catch (IOException e) {
                 e.printStackTrace();
             }

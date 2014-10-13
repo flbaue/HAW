@@ -12,11 +12,11 @@ package rnp.aufgabe1.server.core.models;
 public class IncomingMessage {
 
     private final String content;
-    private final Client client;
+    private final Client host;
 
-    public IncomingMessage(final String content, final Client client){
+    public IncomingMessage(final String content, final Client host){
         this.content = content;
-        this.client = client;
+        this.host = host;
     }
 
     public String getContent() {
@@ -24,6 +24,6 @@ public class IncomingMessage {
     }
 
     public Client getClient() {
-        return client;
+        return host;
     }
 }

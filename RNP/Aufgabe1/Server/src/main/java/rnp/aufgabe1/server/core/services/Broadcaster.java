@@ -49,6 +49,7 @@ public class Broadcaster implements Runnable {
                 Thread.currentThread().interrupt();
             }
         }
+        System.out.println("Server: BroadcasterThread is off");
     }
 
     private void sendToReceiver(Message message) {

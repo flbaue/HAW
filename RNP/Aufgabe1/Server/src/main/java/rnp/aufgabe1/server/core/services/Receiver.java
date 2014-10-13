@@ -86,6 +86,7 @@ public class Receiver implements Runnable {
                 ServerUtils.closeServerSocketSafely(serverSocket);
             }
         }
+        System.out.println("Server: ReceiverThread is off");
     }
 
     /**
