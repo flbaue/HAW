@@ -46,7 +46,7 @@ public class ConnectionWorker implements Runnable {
             out.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         } finally {
             closeSocket();
         }

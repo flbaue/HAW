@@ -56,16 +56,17 @@ public class CommandProcessor {
         if (matcher.matches()) {
             int space = input.indexOf("\u0020");
             String cmdName;
+            String text;
             if(space >= 0) {
                 cmdName = input.substring(0, space);
+                text = input.substring(space).trim();
             } else {
-                cmdName = input;
+                cmdName = input.substring(0, input.length() - 1);
+                text = "";
             }
             Command command;
-            String text;
             try {
                 command = valueOf(cmdName);
-                text = input.substring(space).trim();
             } catch (IllegalArgumentException e) {
                 command = ERROR;
                 int end = (input.length() < 200) ? input.length() : 230;

@@ -59,6 +59,8 @@ public class Server implements Runnable {
             connectionThread.setName("connectionWorker" + connection.instance);
             connectionThread.start();
             connections.put(connection, connectionThread);
+
+            printNumberOfActiveClients();
         }
 
         closeConnectionsWithTimeout();
@@ -66,10 +68,14 @@ public class Server implements Runnable {
         System.out.println("Server stopped.");
     }
 
+    private void printNumberOfActiveClients() {
+        System.out.println("Active clients: " + connections.size());
+    }
+
     private void closeConnectionsWithTimeout() {
         int timeout = 60000;
         int sleep = 1000;
-        while (!connections.isEmpty() && timeout <= 0) {
+        while (!connections.isEmpty() && timeout >= 0) {
             System.out.println((timeout / 1000) + " seconds till forced shutdown");
             ServerUtils.sleep(sleep);
             timeout -= sleep;
@@ -113,5 +119,9 @@ public class Server implements Runnable {
 
     public void removeConnection(ConnectionWorker connection) {
         connections.remove(connection);
+        printNumberOfActiveClients();
+        if(isStopped() && connections.isEmpty()){
+            closeServerSocket();
+        }
     }
 }
