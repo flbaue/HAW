@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.client.newclient;
+package rnp.aufgabe1.client;
 
 import java.io.*;
 import java.net.Socket;

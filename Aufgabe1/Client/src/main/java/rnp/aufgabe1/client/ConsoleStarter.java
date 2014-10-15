@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.client.newclient;
+package rnp.aufgabe1.client;
 
 /**
  * Created by flbaue on 13.10.14.
