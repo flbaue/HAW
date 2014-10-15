@@ -40,8 +40,8 @@ public class Client implements Runnable {
 
                 out.write(input + "\n");
                 out.flush();
-                System.out.println(readResponseFromServer(in));
-                System.out.println("\n>");
+                System.out.print(readResponseFromServer(in));
+                System.out.print(">");
             }
 
             in.close();
