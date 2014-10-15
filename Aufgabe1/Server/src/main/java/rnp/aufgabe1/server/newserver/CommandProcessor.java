@@ -18,7 +18,8 @@ public class CommandProcessor {
 
     // Pattern to validate the IncomingMessage content
     private static final Pattern messagePattern = Pattern.compile("[A-Z]+(\u0020.*)?\n");
-    private static final String UNKNOWN_COMMAND = "unknown command: ";
+    private static final String UNKNOWN_COMMAND = "Unknown command: ";
+    public static final String UNAUTHORIZED = "Unauthorized";
     private final ConnectionWorker connectionWorker;
 
     public CommandProcessor(ConnectionWorker connectionWorker) {
@@ -80,14 +81,15 @@ public class CommandProcessor {
     }
 
     private Message cmdError(String input) {
-        return new Message(ERROR, "Unknown command");
+        int end = (input.length() < 200) ? input.length() : 230;
+        return new Message(ERROR, UNKNOWN_COMMAND + input.substring(0, end) + "...");
     }
 
     private Message cmdShutdown(String input) {
         if (connectionWorker.stopServer(input)) {
             return new Message(OK_BYE);
         }
-        return new Message(ERROR, "unauthorized");
+        return new Message(ERROR, UNAUTHORIZED);
     }
 
     private Message cmdBye() {
