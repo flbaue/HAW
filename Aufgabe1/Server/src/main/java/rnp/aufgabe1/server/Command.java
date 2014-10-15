@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.newserver;
+package rnp.aufgabe1.server;
 
 /**
  * Created by flbaue on 13.10.14.

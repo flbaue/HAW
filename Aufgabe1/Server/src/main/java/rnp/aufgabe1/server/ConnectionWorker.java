@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.newserver;
+package rnp.aufgabe1.server;
 
 import java.io.*;
 import java.net.Socket;
@@ -71,7 +71,11 @@ public class ConnectionWorker implements Runnable {
         in.read(buffer);
         String input = String.valueOf(buffer);
         int end = input.indexOf("\u0000");
-        return input.substring(0, end);
+        if(end >= 0) {
+            return input.substring(0, end);
+        } else {
+            return input;
+        }
     }
 
     public void closeSocket() {

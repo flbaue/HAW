@@ -4,12 +4,12 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.newserver;
+package rnp.aufgabe1.server;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static rnp.aufgabe1.server.newserver.Command.*;
+import static rnp.aufgabe1.server.Command.*;
 
 /**
  * Created by flbaue on 13.10.14.
@@ -17,7 +17,7 @@ import static rnp.aufgabe1.server.newserver.Command.*;
 public class CommandProcessor {
 
     // Pattern to validate the IncomingMessage content
-    private static final Pattern messagePattern = Pattern.compile("[A-Z]+(\u0020.*)?\n");
+    private static final Pattern messagePattern = Pattern.compile("^[A-Z]+(\u0020.*)?\n");
     private static final String UNKNOWN_COMMAND = "Unknown command: ";
     public static final String UNAUTHORIZED = "Unauthorized";
     private final ConnectionWorker connectionWorker;

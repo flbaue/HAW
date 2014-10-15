@@ -4,7 +4,7 @@
  * Copyright (c) 2014.
  */
 
-package rnp.aufgabe1.server.newserver;
+package rnp.aufgabe1.server;
 
 import rnp.aufgabe1.server.oldserver.core.ServerUtils;
 
@@ -39,7 +39,7 @@ public class Server implements Runnable {
     public void run() {
         openServerSocket();
         while (!isStopped()) {
-            Socket clientSocket = null;
+            Socket clientSocket;
             try {
                 clientSocket = serverSocket.accept();
             } catch (IOException e) {
@@ -89,7 +89,7 @@ public class Server implements Runnable {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            throw new RuntimeException("Cannot close port 8080", e);
+            throw new RuntimeException("Cannot close port " + serverPort, e);
         }
     }
 
@@ -97,7 +97,7 @@ public class Server implements Runnable {
         try {
             this.serverSocket = new ServerSocket(serverPort);
         } catch (IOException e) {
-            throw new RuntimeException("Cannot open port 8080", e);
+            throw new RuntimeException("Cannot open port " + serverPort, e);
         }
     }
 
