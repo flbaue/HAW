@@ -1,4 +1,7 @@
-RNP
+rnp-wise14
 ===
 
-University stuff
+HAW - Angewandte Informatik
+
+Rechnernetze - Wintersemester 2014
+
