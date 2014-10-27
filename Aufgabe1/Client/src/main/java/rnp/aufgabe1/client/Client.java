@@ -58,12 +58,16 @@ public class Client implements Runnable {
         in.read(buffer);
         String input = String.valueOf(buffer);
         int end = input.indexOf("\u0000");
-        return input.substring(0, end);
+        if (end >= 0) {
+            return input.substring(0, end);
+        } else {
+            return input;
+        }
     }
 
     private boolean isValid(String input) {
         //TODO: more validation
-        return input.length() < 255;
+        return input.length() < 256;
     }
 
     private String readFromConsole() throws IOException {

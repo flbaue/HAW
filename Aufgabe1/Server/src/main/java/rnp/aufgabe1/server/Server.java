@@ -6,8 +6,6 @@
 
 package rnp.aufgabe1.server;
 
-import rnp.aufgabe1.server.oldserver.core.ServerUtils;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -77,11 +75,19 @@ public class Server implements Runnable {
         int sleep = 1000;
         while (!connections.isEmpty() && timeout >= 0) {
             System.out.println((timeout / 1000) + " seconds till forced shutdown");
-            ServerUtils.sleep(sleep);
+            sleep(sleep);
             timeout -= sleep;
         }
         if (!connections.isEmpty()) {
             closeServerSocket();
+        }
+    }
+
+    private void sleep(int sleep) {
+        try {
+            Thread.sleep(sleep);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
@@ -120,7 +126,7 @@ public class Server implements Runnable {
     public void removeConnection(ConnectionWorker connection) {
         connections.remove(connection);
         printNumberOfActiveClients();
-        if(isStopped() && connections.isEmpty()){
+        if (isStopped() && connections.isEmpty()) {
             closeServerSocket();
         }
     }

@@ -27,11 +27,11 @@ public class ConsoleStarter {
         for (String arg : args) {
             if (arg.startsWith("serverport=")) {
                 serverport = Integer.parseInt(arg.split("=")[1]);
-                System.out.println("secrettoken=" + serverport);
+                System.out.println("secretport=" + serverport);
             }
             if (arg.startsWith("secrettoken=")) {
                 secretToken = arg.split("=")[1];
-                System.out.println("serverport=" + secretToken);
+                System.out.println("secrettoken=" + secretToken);
             }
         }
     }
