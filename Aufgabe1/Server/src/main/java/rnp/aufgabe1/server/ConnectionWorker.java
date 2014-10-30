@@ -21,6 +21,7 @@ public class ConnectionWorker implements Runnable {
     private final CommandProcessor processor = new CommandProcessor(this);
     private final Server server;
     private boolean isStopped = false;
+    private boolean hasReceived = false;
 
     public ConnectionWorker(Socket clientSocket, Server server) {
         this.clientSocket = clientSocket;
@@ -42,6 +43,8 @@ public class ConnectionWorker implements Runnable {
 
                 out.write(output);
                 out.flush();
+                
+                hasReceived = true;
             }
 
             in.close();
@@ -55,8 +58,18 @@ public class ConnectionWorker implements Runnable {
 
         server.removeConnection(this);
     }
+    
+    
 
-    private String processInput(String input) {
+    public boolean isHasReceived() {
+		return hasReceived;
+	}
+
+	public void setHasReceivedFalse() {
+		this.hasReceived = false;
+	}
+
+	private String processInput(String input) {
         String output = processor.process(input);
         if (output.startsWith("BYE") || output.startsWith("OK_BYE")) {
             isStopped = true;
@@ -84,7 +97,7 @@ public class ConnectionWorker implements Runnable {
         String input = String.valueOf(buffer);
 
         int end = input.indexOf('\u0000');
-        if (end != -0) {
+        if (end != -1) {
             input = input.substring(0, end);
         }
         return input;
@@ -118,4 +131,9 @@ public class ConnectionWorker implements Runnable {
     public int hashCode() {
         return instance;
     }
+
+	public void closeConnection() {
+		closeSocket();
+		server.removeConnection(this);
+	}
 }
