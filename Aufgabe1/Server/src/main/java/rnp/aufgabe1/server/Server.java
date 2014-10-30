@@ -47,18 +47,23 @@ public class Server implements Runnable {
                     throw new RuntimeException("Error accepting client connection", e);
                 }
             }
+            
+            if(!isStopped() && connections.size() < 2) {
+            	ConnectionWorker connection = new ConnectionWorker(clientSocket, this);
+            	Thread connectionThread = new Thread(connection);
+            	connectionThread.setName("connectionWorker" + connection.instance);
+            	connectionThread.start();
+            	connections.put(connection, connectionThread);
 
-            if (isStopped()) {
-                break;
+            	printNumberOfActiveClients();
+            } else {
+            	try {
+            		clientSocket.close();
+            		System.out.println("Client not accepted");
+            	} catch(IOException e){
+            		throw new RuntimeException("Error closing client connection", e);
+            	}
             }
-
-            ConnectionWorker connection = new ConnectionWorker(clientSocket, this);
-            Thread connectionThread = new Thread(connection);
-            connectionThread.setName("connectionWorker" + connection.instance);
-            connectionThread.start();
-            connections.put(connection, connectionThread);
-
-            printNumberOfActiveClients();
         }
 
         closeConnectionsWithTimeout();

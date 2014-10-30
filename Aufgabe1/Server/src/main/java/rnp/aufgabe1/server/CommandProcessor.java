@@ -17,7 +17,7 @@ import static rnp.aufgabe1.server.Command.*;
 public class CommandProcessor {
 
     // Pattern to validate the IncomingMessage content
-    private static final Pattern messagePattern = Pattern.compile("^[A-Z]+(\u0020.*)?\n");
+    private final Pattern messagePattern = Pattern.compile("^[A-Z]+(\\u0020.+)?\\n");
     private static final String UNKNOWN_COMMAND = "Unknown command: ";
     public static final String UNAUTHORIZED = "Unauthorized";
     private final ConnectionWorker connectionWorker;
