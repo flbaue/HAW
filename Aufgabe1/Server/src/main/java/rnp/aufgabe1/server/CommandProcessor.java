@@ -68,10 +68,15 @@ public class CommandProcessor {
             Command command;
             try {
                 command = valueOf(cmdName);
+                validateText(command,text);
             } catch (IllegalArgumentException e) {
                 command = ERROR;
-                int end = (input.length() < 200) ? input.length() : 230;
-                text = input.substring(0, end) + "...";
+                if(e.getMessage().isEmpty()) {
+                    int end = (input.length() < 200) ? input.length() : 230;
+                    text = input.substring(0, end) + "...";
+                } else {
+                    text = e.getMessage();
+                }
             }
             return new Message(command, text);
         } else {
@@ -79,6 +84,19 @@ public class CommandProcessor {
             return new Message(ERROR, UNKNOWN_COMMAND + input.substring(0, end) + "...");
         }
     }
+
+    private void validateText(Command command, String text) {
+        if(command == REVERSE && text.isEmpty()){
+            throw new IllegalArgumentException("string must not be empty");
+        }
+        if(command == LOWERCASE && text.isEmpty()){
+            throw new IllegalArgumentException("string must not be empty");
+        }
+        if(command == UPPERCASE && text.isEmpty()){
+            throw new IllegalArgumentException("string must not be empty");
+        }
+    }
+
 
     private Message cmdError(String input) {
         int end = (input.length() < 200) ? input.length() : 230;
