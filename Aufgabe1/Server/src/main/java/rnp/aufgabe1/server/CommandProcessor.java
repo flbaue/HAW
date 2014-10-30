@@ -80,8 +80,9 @@ public class CommandProcessor {
             }
             return new Message(command, text);
         } else {
-            int end = (input.length() < 200) ? input.length() : 230;
-            return new Message(ERROR, UNKNOWN_COMMAND + input.substring(0, end) + "...");
+            String result = input.trim();
+            int end = (result.length() < 200) ? result.length() : 230;
+            return new Message(ERROR, UNKNOWN_COMMAND + result.substring(0, end) + "...");
         }
     }
 

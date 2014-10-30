@@ -84,7 +84,7 @@ public class ConnectionWorker implements Runnable {
         String input = String.valueOf(buffer);
 
         int end = input.indexOf('\u0000');
-        if (end != -0) {
+        if (end != -1) {
             input = input.substring(0, end);
         }
         return input;
