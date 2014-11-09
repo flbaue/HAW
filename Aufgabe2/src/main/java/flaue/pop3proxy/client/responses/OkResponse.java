@@ -1,4 +1,4 @@
-package client.responses;
+package flaue.pop3proxy.client.responses;
 
 /**
  * Created by flbaue on 08.11.14.

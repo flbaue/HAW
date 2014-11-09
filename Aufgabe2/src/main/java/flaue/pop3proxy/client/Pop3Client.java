@@ -1,17 +1,19 @@
-package client;
+package flaue.pop3proxy.client;
 
-import client.requests.ListRequest;
-import client.requests.PassRequest;
-import client.requests.Request;
-import client.requests.UserRequest;
-import client.responses.ErrResponse;
-import client.responses.OkResponse;
-import client.responses.Response;
-import client.responses.Responses;
+import flaue.pop3proxy.common.Mail;
+import flaue.pop3proxy.client.requests.ListRequest;
+import flaue.pop3proxy.client.requests.PassRequest;
+import flaue.pop3proxy.client.requests.Request;
+import flaue.pop3proxy.client.requests.UserRequest;
+import flaue.pop3proxy.client.responses.ErrResponse;
+import flaue.pop3proxy.client.responses.OkResponse;
+import flaue.pop3proxy.client.responses.Response;
+import flaue.pop3proxy.client.responses.Responses;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 
 /**
  * Created by flbaue on 08.11.14.
@@ -29,7 +31,17 @@ public class Pop3Client implements AutoCloseable {
         this.account = account;
     }
 
-    public void connect() throws IOException {
+
+    public List<Mail> fetchMails(){
+//        connect();
+        authorize();
+//        Map<Integer,Integer> mailinfos = list();
+//        List<Mail> mails = downloadMails(mailinfos);
+return null;
+
+    }
+
+    private void connect() throws IOException {
 
         requireState(Pop3States.DISCONNECTED);
 
@@ -55,7 +67,7 @@ public class Pop3Client implements AutoCloseable {
         }
     }
 
-    public void disconnect() {
+    private void disconnect() {
 
         prohibitState(Pop3States.DISCONNECTED);
 
@@ -76,7 +88,7 @@ public class Pop3Client implements AutoCloseable {
         state = Pop3States.DISCONNECTED;
     }
 
-    public void authorize() {
+    private void authorize() {
         requireState(Pop3States.AUTHORIZATION);
 
         username();
@@ -93,27 +105,40 @@ public class Pop3Client implements AutoCloseable {
         sendRequestAndRequireOk(new UserRequest(account.getUsername()));
     }
 
-    private void list(){
+    private void list() {
         requireState(Pop3States.TRANSACTION);
 
         sendRequest(new ListRequest());
         Response response = readMultilineResponse();
-        Responses.requireOk(response);
-        
-        //TODO handle response data;
-        // create list of emails and hand them out
 
+        //TODO handle response data
     }
 
+    private void list(String index) {
+        requireState(Pop3States.TRANSACTION);
+        if (index == null || index.isEmpty()) {
+            throw new IllegalArgumentException("Index must not be empty");
+        }
+
+        sendRequest(new ListRequest(index));
+        Response response = readResponse();
+
+
+
+        //TODO handle response data;
+        // create list of emails and hand them out
+    }
 
     @Override
     public void close() throws Exception {
         disconnect();
     }
 
-    private void sendRequestAndRequireOk(Request request){
+    private Response sendRequestAndRequireOk(Request request) {
         sendRequest(request);
-        Responses.requireOk(readResponse());
+        Response response = readResponse();
+        Responses.requireOk(response);
+        return response;
     }
 
     private void sendRequest(Request request) {
@@ -121,7 +146,7 @@ public class Pop3Client implements AutoCloseable {
             out.write(request.toStringWithLineEnd());
             out.flush();
         } catch (IOException e) {
-            //TODO maybe handle by closing the client?
+            //TODO maybe handle by closing the flaue.pop3proxy.client?
             throw new RuntimeException("Cannot send request", e);
         }
     }

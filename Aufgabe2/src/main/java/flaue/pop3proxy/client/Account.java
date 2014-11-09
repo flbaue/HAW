@@ -1,4 +1,4 @@
-package client;
+package flaue.pop3proxy.client;
 
 /**
  * Created by flbaue on 08.11.14.
