@@ -14,11 +14,9 @@ import java.util.Map;
 public class MailStore {
 
     private final Map<Account, MailDB> stores;
-    private Class defaultMailDbClass;
 
-    public <T extends MailDB> MailStore(Class<T> clazz) {
+    public MailStore() {
         stores = new HashMap<>();
-        defaultMailDbClass = clazz;
     }
 
     public void addStore(Account account, MailDB store) {
@@ -29,12 +27,8 @@ public class MailStore {
 
     public void addStore(Account account) {
         if (!stores.containsKey(account)) {
-            try {
-                MailDB mailDB = ((Class<MailDB>)defaultMailDbClass).getConstructor().newInstance();
+                MailDB mailDB = new InMemoryMailDB();
                 stores.put(account, mailDB);
-            } catch (InstantiationException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException("Cannot instantiate MailDB", e);
-            }
         }
     }
 

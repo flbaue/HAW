@@ -12,7 +12,9 @@ import flaue.pop3proxy.mailstore.MailStore;
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -32,13 +34,14 @@ public class Pop3Client implements AutoCloseable {
         this.account = account;
         this.mailStore = mailStore;
         this.mailStore.addStore(account);
+        state = Pop3States.DISCONNECTED;
     }
 
     public void fetchMails() throws IOException {
         connect();
         authorize();
         Set<MailInfo> mailInfos = list();
-        Set<Mail> mails = downloadMails(mailInfos);
+        List<Mail> mails = downloadMails(mailInfos);
         storeMails(mails);
         deleteMailsFromServer(mailInfos);
     }
@@ -85,8 +88,8 @@ public class Pop3Client implements AutoCloseable {
         state = Pop3States.DISCONNECTED;
     }
 
-    private Set<Mail> downloadMails(Set<MailInfo> mailInfos) {
-        Set<Mail> mails = new HashSet<>();
+    private List<Mail> downloadMails(Set<MailInfo> mailInfos) {
+        List<Mail> mails = new ArrayList<>(mailInfos.size());
 
         for (MailInfo mailInfo : mailInfos) {
             Mail mail = retr(mailInfo);
@@ -96,7 +99,7 @@ public class Pop3Client implements AutoCloseable {
         return mails;
     }
 
-    private void storeMails(Set<Mail> mails) {
+    private void storeMails(List<Mail> mails) {
         for (Mail mail : mails) {
             mailStore.storeMail(account, mail);
         }
@@ -207,10 +210,10 @@ public class Pop3Client implements AutoCloseable {
                 return new ErrResponse(line);
             }
 
-            stringBuilder.append(line);
+            stringBuilder.append(line + "\r\n");
             while (!line.equals(".")) {
                 line = in.readLine();
-                stringBuilder.append(line);
+                stringBuilder.append(line + "\r\n");
             }
             return new OkResponse(stringBuilder.toString());
 

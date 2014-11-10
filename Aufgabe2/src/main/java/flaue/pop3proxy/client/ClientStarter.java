@@ -11,11 +11,12 @@ import java.io.IOException;
  */
 public class ClientStarter {
     public static void main(String[] args) throws IOException {
-        MailStore mailStore = new MailStore(InMemoryMailDB.class);
+        MailStore mailStore = new MailStore();
         Account account = new Account("pop.gmx.net", 995, "***", "***");
         Pop3Client pop3Client = new Pop3Client(account, mailStore);
-//        pop3Client.connect();
-//        pop3Client.authorize();
-//        pop3Client.list();
+
+        pop3Client.fetchMails();
+
+
     }
 }
