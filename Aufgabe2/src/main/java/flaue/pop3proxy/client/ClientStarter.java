@@ -1,5 +1,7 @@
 package flaue.pop3proxy.client;
 
+import flaue.pop3proxy.common.Account;
+
 import java.io.IOException;
 
 /**

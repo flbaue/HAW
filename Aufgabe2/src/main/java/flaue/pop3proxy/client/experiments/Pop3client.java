@@ -1,6 +1,6 @@
 package flaue.pop3proxy.client.experiments;
 
-import flaue.pop3proxy.client.Account;
+import flaue.pop3proxy.common.Account;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;

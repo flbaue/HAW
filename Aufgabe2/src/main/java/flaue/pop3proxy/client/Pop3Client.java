@@ -1,6 +1,5 @@
 package flaue.pop3proxy.client;
 
-import flaue.pop3proxy.common.Mail;
 import flaue.pop3proxy.client.requests.ListRequest;
 import flaue.pop3proxy.client.requests.PassRequest;
 import flaue.pop3proxy.client.requests.Request;
@@ -9,11 +8,15 @@ import flaue.pop3proxy.client.responses.ErrResponse;
 import flaue.pop3proxy.client.responses.OkResponse;
 import flaue.pop3proxy.client.responses.Response;
 import flaue.pop3proxy.client.responses.Responses;
+import flaue.pop3proxy.common.Account;
+import flaue.pop3proxy.common.Mail;
+import flaue.pop3proxy.mailstore.MailStore;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by flbaue on 08.11.14.
@@ -26,19 +29,26 @@ public class Pop3Client implements AutoCloseable {
     private BufferedReader in;
     private BufferedWriter out;
     private Pop3States state;
+    private MailStore mailStore;
 
-    public Pop3Client(Account account) {
+    public Pop3Client(Account account, MailStore mailStore) {
         this.account = account;
+        this.mailStore = mailStore;
     }
 
-
-    public List<Mail> fetchMails(){
-//        connect();
+    public void fetchMails() throws IOException {
+        connect();
         authorize();
-//        Map<Integer,Integer> mailinfos = list();
-//        List<Mail> mails = downloadMails(mailinfos);
-return null;
+        Set<MailInfo> mailInfos = list();
+        Set<Mail> mails = downloadMails(mailInfos);
+        storeMails(mails);
+        deleteMailsFromServer(mailInfos);
+    }
 
+    private void deleteMailsFromServer(Set<MailInfo> mailInfos) {
+        for (MailInfo mailInfo : mailInfos) {
+            del(mailInfo);
+        }
     }
 
     private void connect() throws IOException {
@@ -53,18 +63,6 @@ return null;
         Responses.requireOk(readResponse());
 
         state = Pop3States.AUTHORIZATION;
-    }
-
-    private void requireState(Pop3States state) {
-        if (this.state != state) {
-            throw new IllegalStateException("State required: " + state.name() + " actual: " + state.name());
-        }
-    }
-
-    private void prohibitState(Pop3States state) {
-        if (this.state == state) {
-            throw new IllegalStateException("State prohibited: " + state.name());
-        }
     }
 
     private void disconnect() {
@@ -88,6 +86,23 @@ return null;
         state = Pop3States.DISCONNECTED;
     }
 
+    private Set<Mail> downloadMails(Set<MailInfo> mailInfos) {
+        Set<Mail> mails = new HashSet<>();
+
+        for (MailInfo mailInfo : mailInfos) {
+            Mail mail = retr(mailInfo);
+            mails.add(mail);
+        }
+
+        return mails;
+    }
+
+    private void storeMails(Set<Mail> mails) {
+        for (Mail mail : mails) {
+            mailStore.storeMail(account, mail);
+        }
+    }
+
     private void authorize() {
         requireState(Pop3States.AUTHORIZATION);
 
@@ -97,48 +112,43 @@ return null;
         state = Pop3States.TRANSACTION;
     }
 
-    private void password() {
-        sendRequestAndRequireOk(new PassRequest(account.getPassword()));
-    }
-
     private void username() {
         sendRequestAndRequireOk(new UserRequest(account.getUsername()));
     }
 
-    private void list() {
+    private void password() {
+        sendRequestAndRequireOk(new PassRequest(account.getPassword()));
+    }
+
+    private Set<MailInfo> list() {
         requireState(Pop3States.TRANSACTION);
 
         sendRequest(new ListRequest());
-        Response response = readMultilineResponse();
+        Response response = readMultiLineResponse();
 
-        //TODO handle response data
+        //TODO
+        return null;
     }
 
-    private void list(String index) {
-        requireState(Pop3States.TRANSACTION);
-        if (index == null || index.isEmpty()) {
-            throw new IllegalArgumentException("Index must not be empty");
+    private Mail retr(MailInfo mailInfo) {
+        //TODO
+        return null;
+    }
+
+    private void del(MailInfo mailInfo) {
+        //TODO
+    }
+
+    private void requireState(Pop3States state) {
+        if (this.state != state) {
+            throw new IllegalStateException("State required: " + state.name() + " actual: " + state.name());
         }
-
-        sendRequest(new ListRequest(index));
-        Response response = readResponse();
-
-
-
-        //TODO handle response data;
-        // create list of emails and hand them out
     }
 
-    @Override
-    public void close() throws Exception {
-        disconnect();
-    }
-
-    private Response sendRequestAndRequireOk(Request request) {
-        sendRequest(request);
-        Response response = readResponse();
-        Responses.requireOk(response);
-        return response;
+    private void prohibitState(Pop3States state) {
+        if (this.state == state) {
+            throw new IllegalStateException("State prohibited: " + state.name());
+        }
     }
 
     private void sendRequest(Request request) {
@@ -151,6 +161,13 @@ return null;
         }
     }
 
+    private Response sendRequestAndRequireOk(Request request) {
+        sendRequest(request);
+        Response response = readResponse();
+        Responses.requireOk(response);
+        return response;
+    }
+
     private Response readResponse() {
         try {
             String line = "";
@@ -161,7 +178,7 @@ return null;
         }
     }
 
-    private Response readMultilineResponse() {
+    private Response readMultiLineResponse() {
         StringBuilder stringBuilder = new StringBuilder();
         try {
             String line = in.readLine();
@@ -182,4 +199,8 @@ return null;
         }
     }
 
+    @Override
+    public void close() throws Exception {
+        disconnect();
+    }
 }

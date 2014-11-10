@@ -5,17 +5,22 @@ package flaue.pop3proxy.common;
  */
 public class Mail {
 
-    private final String mail;
+    private final String content;
     private final String uid;
-    private boolean delete;
+    private boolean delete = false;
 
-    public Mail(String s, String uid) {
-        this.mail = s;
+    public Mail(String content, String uid) {
+        this.content = content;
         this.uid = uid;
     }
 
-    public String getMail() {
-        return mail;
+    public Mail(String content) {
+        this.content = content;
+        this.uid = null;
+    }
+
+    public String getContent() {
+        return content;
     }
 
     public String getUid() {

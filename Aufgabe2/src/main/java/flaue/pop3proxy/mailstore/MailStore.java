@@ -1,6 +1,6 @@
 package flaue.pop3proxy.mailstore;
 
-import flaue.pop3proxy.client.Account;
+import flaue.pop3proxy.common.Account;
 import flaue.pop3proxy.common.Mail;
 
 import java.util.HashMap;
@@ -12,19 +12,24 @@ import java.util.Map;
  */
 public class MailStore {
 
-    private final Map<Account, MailDB > stores;
+    private final Map<Account, MailDB> stores;
 
-    public MailStore() {
+    public MailStore(Class<MailDB> clazz) {
         stores = new HashMap<>();
     }
 
-    public void addStore(Account account, InMemoryStore store) {
+    public void addStore(Account account, MailDB store) {
         stores.put(account, store);
+    }
+
+    public void addStore(Account account) {
+        stores.put(account, new InMemoryMailDB());
     }
 
     public void storeMail(Account account, Mail mail) {
         stores.get(account).storeMail(mail);
     }
+
 
     public List<Mail> getMails(Account account) {
         return stores.get(account).getMails();
