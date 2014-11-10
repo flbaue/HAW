@@ -14,7 +14,7 @@ public class Pop3client {
         try {
 
 
-            Account account = new Account("pop.gmx.net", 995, "flo.bauer@gmx.net", "olla85FLOW");
+            Account account = new Account("pop.gmx.net", 995, "***", "***");
 
             // CONNECT
             System.out.println("\n//CONNECT");

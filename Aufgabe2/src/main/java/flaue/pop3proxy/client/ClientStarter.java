@@ -9,7 +9,7 @@ import java.io.IOException;
  */
 public class ClientStarter {
     public static void main(String[] args) throws IOException {
-        Account account = new Account("pop.gmx.net",995,"flo.bauer@gmx.net","olla85FLOW");
+        Account account = new Account("pop.gmx.net",995,"***","***");
         Pop3Client pop3Client = new Pop3Client(account);
 //        pop3Client.connect();
 //        pop3Client.authorize();
