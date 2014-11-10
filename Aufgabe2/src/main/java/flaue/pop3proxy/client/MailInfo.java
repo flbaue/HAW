@@ -1,23 +1,28 @@
 package flaue.pop3proxy.client;
 
+import java.util.Objects;
+
 /**
  * Created by florian on 10.11.14.
  */
 public class MailInfo {
 
-    private final int index;
-    private final int octets;
+    private final String index;
+    private final String octets;
 
-    public MailInfo(int index, int octets) {
+    public MailInfo(String index, String octets) {
+        if (index == null || index.isEmpty() || octets == null || octets.isEmpty()) {
+            throw new IllegalArgumentException("Parameters must not be null or empty");
+        }
         this.index = index;
         this.octets = octets;
     }
 
-    public int getIndex() {
+    public String getIndex() {
         return index;
     }
 
-    public int getOctets() {
+    public String getOctets() {
         return octets;
     }
 
@@ -28,16 +33,16 @@ public class MailInfo {
 
         MailInfo mailInfo = (MailInfo) o;
 
-        if (index != mailInfo.index) return false;
-        if (octets != mailInfo.octets) return false;
+        if (!index.equals(mailInfo.index)) return false;
+        if (!octets.equals(mailInfo.octets)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = index;
-        result = 31 * result + octets;
+        int result = index.hashCode();
+        result = 31 * result + octets.hashCode();
         return result;
     }
 }

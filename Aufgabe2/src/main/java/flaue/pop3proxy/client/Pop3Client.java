@@ -1,9 +1,6 @@
 package flaue.pop3proxy.client;
 
-import flaue.pop3proxy.client.requests.ListRequest;
-import flaue.pop3proxy.client.requests.PassRequest;
-import flaue.pop3proxy.client.requests.Request;
-import flaue.pop3proxy.client.requests.UserRequest;
+import flaue.pop3proxy.client.requests.*;
 import flaue.pop3proxy.client.responses.ErrResponse;
 import flaue.pop3proxy.client.responses.OkResponse;
 import flaue.pop3proxy.client.responses.Response;
@@ -34,6 +31,7 @@ public class Pop3Client implements AutoCloseable {
     public Pop3Client(Account account, MailStore mailStore) {
         this.account = account;
         this.mailStore = mailStore;
+        this.mailStore.addStore(account);
     }
 
     public void fetchMails() throws IOException {
@@ -47,7 +45,7 @@ public class Pop3Client implements AutoCloseable {
 
     private void deleteMailsFromServer(Set<MailInfo> mailInfos) {
         for (MailInfo mailInfo : mailInfos) {
-            del(mailInfo);
+            dele(mailInfo);
         }
     }
 
@@ -69,6 +67,7 @@ public class Pop3Client implements AutoCloseable {
 
         prohibitState(Pop3States.DISCONNECTED);
 
+        //TODO make pretty
         try {
             in.close();
             out.close();
@@ -126,17 +125,38 @@ public class Pop3Client implements AutoCloseable {
         sendRequest(new ListRequest());
         Response response = readMultiLineResponse();
 
-        //TODO
-        return null;
+        if (response.getCommand().equals(ErrResponse.COMMAND)) {
+            throw new RuntimeException(response.getPayload());
+        }
+
+        Set<MailInfo> results = new HashSet<>();
+        String[] lines = response.getPayload().split("\r\n");
+        for (int i = 1; i < lines.length - 1; i++) {
+            String line = lines[i].trim();
+            String[] parts = line.split("\\s");
+            results.add(new MailInfo(parts[0].trim(), parts[1].trim()));
+        }
+
+        return results;
     }
 
     private Mail retr(MailInfo mailInfo) {
-        //TODO
-        return null;
+        requireState(Pop3States.TRANSACTION);
+
+        sendRequest(new RetrRequest(mailInfo.getIndex()));
+        Response response = readMultiLineResponse();
+        if (response.getCommand().equals(ErrResponse.COMMAND)) {
+            throw new IllegalArgumentException(response.getPayload());
+        }
+        int endLine1 = response.getPayload().indexOf("\r\n");
+        String body = response.getPayload().substring(endLine1 + 2);
+
+        return new Mail(body);
     }
 
-    private void del(MailInfo mailInfo) {
-        //TODO
+    private void dele(MailInfo mailInfo) {
+        requireState(Pop3States.TRANSACTION);
+        sendRequestAndRequireOk(new DeleRequest(mailInfo.getIndex()));
     }
 
     private void requireState(Pop3States state) {

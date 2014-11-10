@@ -7,7 +7,7 @@ import java.util.*;
 /**
  * Created by flbaue on 09.11.14.
  */
-class InMemoryMailDB implements MailDB {
+public class InMemoryMailDB implements MailDB {
 
     private final Set<Mail> mails;
     private final Random rand = new Random();
