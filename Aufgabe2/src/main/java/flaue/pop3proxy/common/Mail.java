@@ -31,8 +31,17 @@ public class Mail {
         delete = true;
     }
 
+    public void restore() {
+        delete = false;
+    }
+
     public boolean isMarkedForDeletion() {
         return delete;
+    }
+
+    @Override
+    public String toString() {
+        return uid;
     }
 
     @Override

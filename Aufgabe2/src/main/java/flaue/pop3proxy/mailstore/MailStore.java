@@ -3,10 +3,7 @@ package flaue.pop3proxy.mailstore;
 import flaue.pop3proxy.common.Account;
 import flaue.pop3proxy.common.Mail;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by flbaue on 09.11.14.
@@ -27,13 +24,13 @@ public class MailStore {
 
     public void addStore(Account account) {
         if (!stores.containsKey(account)) {
-                MailDB mailDB = new InMemoryMailDB();
-                stores.put(account, mailDB);
+            MailDB mailDB = new InMemoryMailDB();
+            stores.put(account, mailDB);
         }
     }
 
-    public void storeMail(Account account, Mail mail) {
-        stores.get(account).storeMail(mail);
+    public Mail storeMail(Account account, Mail mail) {
+        return stores.get(account).storeMail(mail);
     }
 
 
@@ -41,5 +38,44 @@ public class MailStore {
         return stores.get(account).getMails();
     }
 
+    public Set<Account> getAccounts() {
+        return Collections.unmodifiableSet(stores.keySet());
+    }
 
+    public boolean hasAccount(String username) {
+        for (Account account : stores.keySet()) {
+            if (account.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean authorize(String username, String password) {
+        for (Account account : stores.keySet()) {
+            if (account.getUsername().equals(username) && account.getPassword().equals(password)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<Mail> getMails(String username, String password) {
+        for (Account account : stores.keySet()) {
+            if (account.getUsername().equals(username) && account.getPassword().equals(password)) {
+                return stores.get(account).getMails();
+            }
+        }
+        return null;
+    }
+
+    public void deleteMarkedMails(String username, String password) {
+        for (Account account : stores.keySet()) {
+            if (account.getUsername().equals(username) && account.getPassword().equals(password)) {
+                MailDB mailDB = stores.get(account);
+                mailDB.deleteMarkedMails();
+                break;
+            }
+        }
+    }
 }

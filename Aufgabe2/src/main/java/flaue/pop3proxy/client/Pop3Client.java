@@ -7,15 +7,13 @@ import flaue.pop3proxy.client.responses.Response;
 import flaue.pop3proxy.client.responses.Responses;
 import flaue.pop3proxy.common.Account;
 import flaue.pop3proxy.common.Mail;
+import flaue.pop3proxy.common.Pop3States;
 import flaue.pop3proxy.mailstore.MailStore;
 
 import javax.net.ssl.SSLSocketFactory;
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by flbaue on 08.11.14.
@@ -42,8 +40,22 @@ public class Pop3Client implements AutoCloseable {
         authorize();
         Set<MailInfo> mailInfos = list();
         List<Mail> mails = downloadMails(mailInfos);
-        storeMails(mails);
+        mails = storeMails(mails);
+        printLog(mails);
         deleteMailsFromServer(mailInfos);
+    }
+
+    private void printLog(List<Mail> mails) {
+        String out = "--------------------\n" +
+                "Pop3Client Mail Download\n" +
+                "Account: " + account;
+
+        int count = 1;
+        for (Mail mail : mails) {
+            out += count + " " + mail.toString() + "\n";
+            count += 1;
+        }
+        System.out.println(out);
     }
 
     private void deleteMailsFromServer(Set<MailInfo> mailInfos) {
@@ -56,10 +68,11 @@ public class Pop3Client implements AutoCloseable {
 
         requireState(Pop3States.DISCONNECTED);
 
-        SSLSocketFactory ssf = (SSLSocketFactory) SSLSocketFactory.getDefault();
-        connection = ssf.createSocket(account.getServer(), account.getPort());
-        in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        out = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+//        SSLSocketFactory ssf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+//        connection = ssf.createSocket(account.getServer(), account.getPort());
+        connection = new Socket(account.getServer(), account.getPort());
+        in = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
+        out = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream(), "UTF-8"));
 
         Responses.requireOk(readResponse());
 
@@ -99,10 +112,13 @@ public class Pop3Client implements AutoCloseable {
         return mails;
     }
 
-    private void storeMails(List<Mail> mails) {
+    private List<Mail> storeMails(List<Mail> mails) {
+        List<Mail> storedMails = new LinkedList<>();
         for (Mail mail : mails) {
-            mailStore.storeMail(account, mail);
+            Mail storedMail = mailStore.storeMail(account, mail);
+            storedMails.add(storedMail);
         }
+        return storedMails;
     }
 
     private void authorize() {
@@ -176,6 +192,7 @@ public class Pop3Client implements AutoCloseable {
 
     private void sendRequest(Request request) {
         try {
+            System.out.println("Client OUT:" + request.toStringWithLineEnd());
             out.write(request.toStringWithLineEnd());
             out.flush();
         } catch (IOException e) {
@@ -195,6 +212,7 @@ public class Pop3Client implements AutoCloseable {
         try {
             String line = "";
             line = in.readLine();
+            System.out.println("Client IN: " + line);
             return Responses.createResponse(line);
         } catch (IOException e) {
             throw new RuntimeException("Cannot read response", e);
@@ -215,7 +233,9 @@ public class Pop3Client implements AutoCloseable {
                 line = in.readLine();
                 stringBuilder.append(line + "\r\n");
             }
-            return new OkResponse(stringBuilder.toString());
+            String input = stringBuilder.toString();
+            System.out.println("Client IN:" + input);
+            return new OkResponse(input);
 
         } catch (IOException e) {
             throw new RuntimeException("Cannot read response", e);

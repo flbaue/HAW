@@ -12,11 +12,9 @@ import java.io.IOException;
 public class ClientStarter {
     public static void main(String[] args) throws IOException {
         MailStore mailStore = new MailStore();
-        Account account = new Account("pop.gmx.net", 995, "***", "***");
+        Account account = new Account("pop.gmx.net", 995, "flo.bauer@gmx.net", "NtgvygAE6HkfsfF8f_zw");
         Pop3Client pop3Client = new Pop3Client(account, mailStore);
 
         pop3Client.fetchMails();
-
-
     }
 }

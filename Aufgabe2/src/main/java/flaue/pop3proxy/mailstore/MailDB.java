@@ -8,6 +8,8 @@ import java.util.List;
  * Created by flbaue on 09.11.14.
  */
 public interface MailDB {
-    void storeMail(Mail mail);
+    Mail storeMail(Mail mail);
     List<Mail> getMails();
+
+    void deleteMarkedMails();
 }

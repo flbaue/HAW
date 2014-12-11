@@ -16,15 +16,29 @@ public class InMemoryMailDB implements MailDB {
         this.mails = new HashSet<>();
     }
 
-    public void storeMail(Mail mail) {
+    public Mail storeMail(Mail mail) {
         if (mail.getUid() == null || mail.getUid().isEmpty()) {
-            mails.add(new Mail(mail.getContent(), getFreeUid()));
+            Mail newMail = new Mail(mail.getContent(), getFreeUid());
+            mails.add(newMail);
+            return newMail;
         }
+        return null;
     }
 
     @Override
     public List<Mail> getMails() {
         return new ArrayList<>(mails);
+    }
+
+    @Override
+    public void deleteMarkedMails() {
+        Iterator<Mail> iterator = mails.iterator();
+        while (iterator.hasNext()) {
+            Mail mail = iterator.next();
+            if (mail.isMarkedForDeletion()) {
+                iterator.remove();
+            }
+        }
     }
 
     String getFreeUid() {
